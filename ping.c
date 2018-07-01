@@ -30,29 +30,10 @@ int count_flag = 0;
 
 //间隔
 int send_interval=0;
+double delay = 0.5;
 
 //全局开始时间
 struct timeval tval_start;
-
-int sleep_with_restart(int second)
- {
-     int left;
-
-     left = second;
- #if 0 //case 1, sleep can be wake up by alarm or Ctrl + C, and the function will exit
-     left = sleep(left);//sleep()被中断之后会返回剩余的秒数
-#endif
-
- #if 1 //case 2, sleep can be wake up by alarm or Ctrl + C, but we can restart it! because the sleep function will return the left second after be wake up!
-    while (left > 0)
-     {
-         //fprintf(stdout, "Restarting sleep(%d) .../n", left);
-         left = sleep(left);//sleep()被中断之后会返回剩余的秒数
-    }
- #endif
-
-     return 0;
- }
 
 int main(int argc, char **argv)
 {
@@ -363,8 +344,7 @@ void readloop(void)
 //发送第一个数据包
 	sig_alrm(SIGALRM);		/* send first packet */
 
-	//sleep_with_restart(send_interval);
-	sleep(send_interval-0.5);
+	sleep(send_interval - delay);
 	//不停的接受icmp数据包
 	for ( ; ; )
 	{
@@ -378,14 +358,14 @@ void readloop(void)
 		}
 		gettimeofday(&tval, NULL);
 		(*pr->fproc)(recvbuf, n, &tval);
-		sleep(send_interval-0.5);
+		sleep(send_interval - delay);
 	}
 }
 
 /*定时发送数据包*/
 void sig_alrm(int signo)
 {
-	sleep(send_interval-0.5);
+	sleep(send_interval - delay);
 	(*pr->fsend)();
 	send_package_count++;
 	alarm(1);
@@ -543,11 +523,13 @@ void err_sys(const char *fmt, ...)
 
 void printhelp()
 {
-	printf("-h	         显示帮助信息 \n");
+	printf("Usage: ping \n");
+	printf("-h    显示帮助信息 \n");
+	printf("-b    ping一个广播地址，只用于IPv4\n");
+	printf("-q	  安静模式。不显示每个收到的包的分析结果，只在结束时显示汇总结果 \n");
 	printf("-c  parameter    发送指定数据包数量\n");
 	printf("-s  parameter    指定发送的数据字节数\n");
 	printf("-t  parameter    设置ttl值，只用于IPv4\n");
-	printf("-b               ping一个广播地址，只用于IPv4\n");
-	printf("-q	         安静模式。不显示每个收到的包的分析结果，只在结束时显示汇总结果 \n");
+	printf("-i  parameter    指定收发信息的间隔时间\n");
 }
 //tcpdump -n icmp -v
