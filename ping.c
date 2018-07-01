@@ -28,15 +28,38 @@ int broadcast_flag = 0;
 int quiet_flag = 0;
 int count_flag = 0;
 
+//间隔
+int send_interval=0;
+
 //全局开始时间
 struct timeval tval_start;
+
+int sleep_with_restart(int second)
+ {
+     int left;
+
+     left = second;
+ #if 0 //case 1, sleep can be wake up by alarm or Ctrl + C, and the function will exit
+     left = sleep(left);//sleep()被中断之后会返回剩余的秒数
+#endif
+
+ #if 1 //case 2, sleep can be wake up by alarm or Ctrl + C, but we can restart it! because the sleep function will return the left second after be wake up!
+    while (left > 0)
+     {
+         //fprintf(stdout, "Restarting sleep(%d) .../n", left);
+         left = sleep(left);//sleep()被中断之后会返回剩余的秒数
+    }
+ #endif
+
+     return 0;
+ }
 
 int main(int argc, char **argv)
 {
 	int	c;
 	struct addrinfo	*ai;
 	opterr = 0;		/* don't want getopt() writing to stderr */
-	while ( (c = getopt(argc, argv, "vhbqs:c:t:")) != -1)
+	while ( (c = getopt(argc, argv, "vhbqs:c:t:i:")) != -1)
 	{
 		switch (c)
 		{
@@ -44,7 +67,7 @@ int main(int argc, char **argv)
 				verbose++;
 				break;
 			case 'h':
-			  printhelp();
+				printhelp();
 				return 0;
 			case 'b':
 				broadcast_flag = 1;
@@ -58,12 +81,15 @@ int main(int argc, char **argv)
 				break;
 			case 't':
 				if(sscanf(optarg, "%d", &ttl)==1 && ttl >= 0 && ttl < 256)
-				ttl_flag = 1;
+				    ttl_flag = 1;
 				break;
-		  case 'q':
+			case 'q':
 				quiet_flag = 1;
 				break;
-			 case '?':
+			case 'i':
+				sscanf(optarg,"%d",&send_interval);
+				break;
+			case '?':
 				err_quit("unrecognized option: %c", c);
 		}
 	}
@@ -337,6 +363,8 @@ void readloop(void)
 //发送第一个数据包
 	sig_alrm(SIGALRM);		/* send first packet */
 
+	//sleep_with_restart(send_interval);
+	sleep(send_interval-0.5);
 	//不停的接受icmp数据包
 	for ( ; ; )
 	{
@@ -350,12 +378,14 @@ void readloop(void)
 		}
 		gettimeofday(&tval, NULL);
 		(*pr->fproc)(recvbuf, n, &tval);
+		sleep(send_interval-0.5);
 	}
 }
 
 /*定时发送数据包*/
 void sig_alrm(int signo)
 {
+	sleep(send_interval-0.5);
 	(*pr->fsend)();
 	send_package_count++;
 	alarm(1);
