@@ -525,7 +525,6 @@ void printhelp()
 {
 	printf("Usage: ping \n");
 	printf("-h    显示帮助信息 \n");
-	printf("-v    详细显示指令的执行过程\n");
 	printf("-b    ping一个广播地址，只用于IPv4\n");
 	printf("-q	  安静模式。不显示每个收到的包的分析结果，只在结束时显示汇总结果 \n");
 	printf("-c  parameter    发送指定数据包数量\n");
