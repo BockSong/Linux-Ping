@@ -4,16 +4,16 @@ Implementation of Linux tool, ping.
 
 Usage: ping 
 
--h    显示帮助信息
+-h    **Show help information.**
 
--b    ping一个广播地址，只用于IPv4
+-b    **Allow pinging a broadcast address.**
 
--q	  安静模式
+-q	  **Quiet output. Only display the summary lines at startup time and when finished.**
 
--c  parameter    发送指定数据包数量
+-c  count    **Stop after sending (and receiving) count ECHO_RESPONSE packets.**
 
--s  parameter    指定发送的数据字节数
+-s  packetsize    **The number of data bytes to be sent.**
 
--t  parameter    设置ttl值，只用于IPv4
+-t  ttl    **Set the IP Time to Live.**
 
--i  parameter    指定收发信息的间隔时间
+-i  wait    **Set an interval of wait seconds between sending each packet.**
