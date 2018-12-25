@@ -10,10 +10,10 @@ Usage: ping
 
 -q	  **Quiet output. Only display the summary lines at startup time and when finished.**
 
--c  count    **Stop after sending (and receiving) count ECHO_RESPONSE packets.**
-
--s  packetsize    **The number of data bytes to be sent.**
-
 -t  ttl    **Set the IP Time to Live.**
 
 -i  wait    **Set an interval of wait seconds between sending each packet.**
+
+-c  count    **Stop after sending (and receiving) count ECHO_RESPONSE packets.**
+
+-s  packetsize    **The number of data bytes to be sent.**
